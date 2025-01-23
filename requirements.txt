@@ -5,3 +5,5 @@ ultralytics
 streamlit
 matplotlib
 pyswarm
+python3-opencv
+opencv-python
