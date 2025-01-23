@@ -6,3 +6,4 @@ streamlit
 matplotlib
 pyswarm
 opencv-python
+libgtk2.0-dev
