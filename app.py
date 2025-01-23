@@ -1,5 +1,5 @@
 import numpy as np
-import opencv-python as cv2
+import cv2
 import os
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import euclidean
