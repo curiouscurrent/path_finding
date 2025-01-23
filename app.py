@@ -1,5 +1,5 @@
 import numpy as np
-import cv2
+from PIL import Image
 import os
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import euclidean
@@ -8,16 +8,16 @@ import streamlit as st
 from pyswarm import pso  # Import PSO library
 
 # Streamlit file uploader
-st.title("Jalswarm : AI-powered Waste Collection,Navigation and Disposal System")
+st.title("Jalswarm: AI-powered Waste Collection, Navigation, and Disposal System")
 uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
 
 if uploaded_file:
     # Read the uploaded image
-    image_bytes = uploaded_file.read()
-    image = cv2.imdecode(np.frombuffer(image_bytes, np.uint8), cv2.IMREAD_COLOR)
+    image = Image.open(uploaded_file)
     
-    # Convert the image to RGB for display
-    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    # Convert the image to RGB for processing and display
+    image_rgb = image.convert("RGB")
+    image_np = np.array(image_rgb)  # Convert to NumPy array for processing
     
     # Display the uploaded image
     st.image(image_rgb, caption="Uploaded Image", use_column_width=True)
@@ -26,7 +26,7 @@ if uploaded_file:
     model = YOLO('best_p6.pt')  # Specify the path to your model file
 
     # Perform inference to detect trash objects
-    results = model.predict(source=image)
+    results = model.predict(source=image_np)
 
     # Initialize a list to store trash coordinates
     trash_coords = []
@@ -63,7 +63,7 @@ if uploaded_file:
         return total_distance  # Minimize this value
 
     lb = [0, 0] * num_agents  # Lower bounds for agent positions (example: start positions)
-    ub = [image.shape[1], image.shape[0]] * num_agents  # Upper bounds for agent positions
+    ub = [image_np.shape[1], image_np.shape[0]] * num_agents  # Upper bounds for agent positions
 
     # Perform PSO to optimize the agent paths
     optimal_positions, _ = pso(fitness_function, lb, ub, swarmsize=10, maxiter=10)
