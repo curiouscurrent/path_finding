@@ -1,0 +1,7 @@
+numpy
+opencv-python-headless
+matplotlib
+scipy
+streamlit
+ultralytics
+pyswarm
