@@ -1,9 +1,9 @@
-opencv-python-headless==4.0.1.23
+opencv-python-headless
+pillow
 numpy
 scipy
 ultralytics
 streamlit
 matplotlib
 pyswarm
-opencv-python
 
