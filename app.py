@@ -1,29 +1,32 @@
-import numpy as np 
+import numpy as np
 import cv2
 import os
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import euclidean
 from ultralytics import YOLO
-from google.colab import files
+import streamlit as st
 from pyswarm import pso  # Import PSO library
 
-# Upload file via Colab's file upload functionality
-uploaded = files.upload()
+# Streamlit file uploader
+st.title("Jalswarm : AI-powered Waste Collection,Navigation and Disposal System")
+uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
 
-# Check if a file is uploaded and get the file name
-if uploaded:
-    image_path = next(iter(uploaded))  # Get the first uploaded file's name
-    print(f"Uploaded file: {image_path}")
-
-    # Load YOLO model
-    model = YOLO('/content/drive/MyDrive/best_p6.pt')
+if uploaded_file:
+    # Read the uploaded image
+    image_bytes = uploaded_file.read()
+    image = cv2.imdecode(np.frombuffer(image_bytes, np.uint8), cv2.IMREAD_COLOR)
     
-    # Read the uploaded image and process it
-    image = cv2.imread(image_path)
+    # Convert the image to RGB for display
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     
+    # Display the uploaded image
+    st.image(image_rgb, caption="Uploaded Image", use_column_width=True)
+
+    # Load YOLO model
+    model = YOLO('best_p6.pt')  # Specify the path to your model file
+
     # Perform inference to detect trash objects
-    results = model.predict(source=image_path)
+    results = model.predict(source=image)
 
     # Initialize a list to store trash coordinates
     trash_coords = []
@@ -31,7 +34,7 @@ if uploaded:
         boxes = result.boxes
         for box in boxes:
             class_id = int(box.cls)
-            if class_id == 1:
+            if class_id == 1:  # Assuming class 1 is trash
                 x_center, y_center, _, _ = box.xywh[0]
                 trash_coords.append((x_center, y_center))
 
@@ -88,7 +91,7 @@ if uploaded:
                 ax.plot([start_point[0], end_point[0]], [start_point[1], end_point[1]], colors[agent_idx], lw=2)
 
         # Display the final image
-        plt.show()
+        st.pyplot(fig)
 
     # Collect trash for both agents with APF and dynamic recalculation
     def dynamic_path_recalculation(trash_coords, num_agents):
@@ -187,6 +190,6 @@ if uploaded:
 
     # Print out the path taken by both agents
     for agent_idx, path in enumerate(agent_paths):
-        print(f"Path taken by Agent {agent_idx + 1}:")
+        st.write(f"Path taken by Agent {agent_idx + 1}:")
         for idx, node in enumerate(path):
-            print(f"Step {idx + 1}: Trash object {node + 1} at {trash_coords[node]}")
+            st.write(f"Step {idx + 1}: Trash object {node + 1} at {trash_coords[node]}")
